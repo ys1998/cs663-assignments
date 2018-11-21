@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[margin=1in]{geometry}
+\title{CS663 Assignment 4}
+\author{Yash Shah, \textit{160050002}\\Utkarsh Gupta, \textit{160050032}}
+
+\begin{document}
+
+\maketitle
+
+
+\section*{Question 6}
+\subsection*{(a)} 
+$P = A^{T}A \implies y^TPy = (y^{T}A^{T})(y^{T}A^{T})^{T} = vv^{T} = \sum_{i=1}^{|v|} v_i^2 \geq 0$ where $v = y^{T}A^{T}$ and $|v|$ is number of elements in the vector $v$ (note that $v$ is a row vector).\\Similarly, \\ $Q = AA^{T} \implies z^TQz = (z^{T}A)(z^{T}A)^{T} = vv^{T} = \sum_{i=1}^{|v|} v_i^2 \geq 0$ where $v = z^{T}A$ and $|v|$ is number of elements in the vector $v$. \\
+These properties of $P$ and $Q$ are true for any arbitrary $y$ and $z$. Choose $y$ and $z$ to be the eigen vectors of $P$ and $Q$ with eigenvalues $\lambda_1$ and $\lambda_2$ respectively. Substituting, we get\\
+$$
+y^TPy = y^T(\lambda_1 y) = \lambda_1(y^Ty) = \lambda_1 \geq 0 
+$$ 
+$$
+z^TQz = z^T(\lambda_2 z) = \lambda_2(z^Tz) = \lambda_2 \geq 0 
+$$
+Hence, $P$ and $Q$ will always have non-negative eigenvalues (since the eigen vectors were chosen arbitrarily).
+%Since we didnt made any assumpotions about the entries of $y,z$ hence the inequalities $y^TPy \geq 0 ~ \& ~z^TQz \geq 0$ are true for any $y,z$ of appropriate dimensions thus this proves that $P,Q$ are positive semi-definite matrices. ($P,Q$ are symmetric as they are product of a matrix and its transpose) This in turn (being positive semi-definite) implies that they have non-negative eigenvalues.
+\subsection*{(b)} 
+$$
+Pu = \lambda u \implies A^{T}Au=\lambda u
+$$
+Pre-multiplying $A$ on both sides of the equation yields
+$$
+AA^{T}(Au) = \lambda(Au)
+$$
+Hence by definition of eigenvectors $Au$ is an eigenvector of $AA^T$ (or $Q$) with eigenvalue $\lambda$. Similarly,
+$$
+Qv = \mu v \implies AA^Tv=\mu v
+$$
+Pre-multiplying $A^T$ on both sides of the equation yields 
+$$
+A^{T}A(A^Tv) = \mu (A^Tv)
+$$
+Hence by definition of eigen vectors $A^Tv$ is eigen vector of $A^TA$ (or $P$) with eigenvalue $\mu$. Keeping in mind the validity of multiplication operation in matrices, the number of elements in the vectors $u,v$ will be $n$ (dimension is $n \times 1$) and $m$ (dimension is $m \times 1$) respectively.
+\subsection*{(c)} 
+Let $k = || A^Tv_i||_2$ where $k \in R^{+}$. Since $v_i$ is an eigen vector of $Q$, by definition of eigen vectors we have $Qv_i = \lambda v_i$ for some $\lambda \in R^{+}$ (since by part (a) we know that the eigenvalues are non-negative for $Q$, and $\lambda$ is the eigenvalue for eigen vector $v_i$). Thus
+$$ Au_i = \frac{AA^T v_i}{k} = \frac{Q v_i}{k} = \frac{\lambda}{k}v_i$$
+Thus, $\gamma_i = \frac{\lambda}{k} \in R^{+}$ as the numerator is non-negative (shown above) and the denominator is positive ($L_2$ norm of any vector is positive). Thus, we have shown the existence of a non-negative real $\gamma_i$ by finding it out usingthe corresponding eigenvalue. 
+\subsection*{(d)} 
+It is given in the question that $u_i$'s are orthonormal among themselves and $v_i$'s are orthonormal among themselves. Also, $U = [v_1|v_2|...|v_m]$ and $V = [u_1|u_2|...|u_m]$. We solve backwards.
+$A = U\Gamma V^T  \Longleftrightarrow AV = U\Gamma$ (post multiplying with $V$ and making use of the fact that $V$ is a orthonormal matrix as all column vectors are orthonormal to each other). Now we show separately that LHS and RHS are equal to the same matrix and hence are in turn equal to one another (which would imply that $A = U\Gamma V^T$)
+$$
+AV = A[u_1|u_2|..|u_m] = [Au_1|Au_2|..|Au_m] = [\gamma_1v_1|\gamma_2v_2|...|\gamma_mv_m]
+$$
+$$
+U \Gamma = U[x_1|x_2|...|x_m]
+$$ 
+where $x_i$ is the $i^{th}$ column vector of $\Gamma$. By definition of $\Gamma$ (diagonal matrix), only $i^{th}$ entry of $x_i$ is non-zero and equal to $\gamma_i$ . Now we can simplify it as $U \Gamma = [Ux_1|Ux_2|...|Ux_m] $; $Ux_i$ is equal to $\gamma_i$ times the $i^{th}$ column of $U$ which is $v_i$. Thus, $U \Gamma = [\gamma_1v_1|\gamma_2v_2|...|\gamma_mv_m]$. Hence both RHS and LHS have been shown to be equal, thereby establishing the required equality.
+\\
+% $[v_1,v_2,..v_m]\Gamma $ Using part c we get $[\gamma_1v_1,\gamma_2v_2,..\gamma_mv_m] = [v_1,v_2,..v_m]\Gamma$ which is correct since $\Gamma$ is a diagonal matrix where $\Gamma(i,i) = \gamma_i ~\forall i \in [1..m]$ thus $U \Gamma = [v_1,v_2,..v_m]\Gamma = [\gamma_1v_1,\gamma_2v_2,..\gamma_mv_m]$
+
+\end{document}

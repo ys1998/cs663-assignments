@@ -1,0 +1,227 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Bilateral Filtering</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-08-20"><meta name="DC.source" content="myMainScript.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Bilateral Filtering</h1><!--introduction--><p>We used a spatial gaussian kernel of size <img src="myMainScript_eq10975364421293453016.png" alt="$ks\_s=max\{5, floor(4\cdot\sigma_s)\}$" style="width:121px;height:10px;"> and further converted it into an odd value by adding 1 if required.</p><p>All images (original, corrupted and resultant) were linearly stretched so that the intensities fell in the range [0,1]. Comparisions between images were made after this step.</p><p>The optimal values of <img src="myMainScript_eq03986963622219052081.png" alt="$\sigma_s$" style="width:9px;height:6px;"> and <img src="myMainScript_eq04740202211481950950.png" alt="$\sigma_i$" style="width:8px;height:6px;"> for the input images were found to be:</p><!--/introduction--><div><ol><li><b>barbara</b> - <img src="myMainScript_eq03986963622219052081.png" alt="$\sigma_s$" style="width:9px;height:6px;">=0.55 and <img src="myMainScript_eq04740202211481950950.png" alt="$\sigma_i$" style="width:8px;height:6px;">=3.3</li><li><b>grassNoisy</b> - <img src="myMainScript_eq03986963622219052081.png" alt="$\sigma_s$" style="width:9px;height:6px;">=0.54 and <img src="myMainScript_eq04740202211481950950.png" alt="$\sigma_i$" style="width:8px;height:6px;">=10</li><li><b>honeyCombReal_Noisy</b> - <img src="myMainScript_eq03986963622219052081.png" alt="$\sigma_s$" style="width:9px;height:6px;">=0.6 and <img src="myMainScript_eq04740202211481950950.png" alt="$\sigma_i$" style="width:8px;height:6px;">=1.0</li></ol></div><pre class="codeinput">tic;
+disp(<span class="string">'Input : grass.png'</span>);
+x = imread(<span class="string">'../data/grass.png'</span>);
+x = im2single(x);
+S = myBilateralFiltering(x, 0.54, 10, false);
+<span class="comment">% save images</span>
+save([<span class="string">'../images/grassNoisy.mat'</span>], <span class="string">'-struct'</span>, <span class="string">'S'</span>);
+
+disp(<span class="string">'With 0.9*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x, 0.486, 10, false);
+disp(<span class="string">'With 1.1*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x, 0.594 ,10, false);
+disp(<span class="string">'With sigma_s and 0.9*sigma_i'</span>);
+myBilateralFiltering(x, 0.54, 9, false);
+disp(<span class="string">'With sigma_s and 1.1*sigma_i'</span>);
+myBilateralFiltering(x, 0.54, 11, false);
+toc;
+
+tic;
+disp(<span class="string">'Input : honeyCombReal.png'</span>);
+x = imread(<span class="string">'../data/honeyCombReal.png'</span>);
+x = im2single(x);
+S = myBilateralFiltering(x, 0.6, 1, false);
+<span class="comment">% save images</span>
+save([<span class="string">'../images/honeyCombReal.mat'</span>], <span class="string">'-struct'</span>, <span class="string">'S'</span>);
+
+disp(<span class="string">'With 0.9*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x, 0.54, 1, false);
+disp(<span class="string">'With 1.1*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x, 0.66, 1, false);
+disp(<span class="string">'With sigma_s and 0.9*sigma_i'</span>);
+myBilateralFiltering(x, 0.6, 0.9, false);
+disp(<span class="string">'With sigma_s and 1.1*sigma_i'</span>);
+myBilateralFiltering(x, 0.6, 1.1, false);
+toc;
+
+tic;
+disp(<span class="string">'Input : barbara.mat'</span>);
+x = load(<span class="string">'../data/barbara.mat'</span>);
+S = myBilateralFiltering(x.imageOrig, 0.55, 3.3, false);
+<span class="comment">% save images</span>
+save([<span class="string">'../images/barbara.mat'</span>], <span class="string">'-struct'</span>, <span class="string">'S'</span>);
+
+disp(<span class="string">'With 0.9*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x.imageOrig, 0.495, 3.3, false);
+disp(<span class="string">'With 1.1*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x.imageOrig, 0.605, 3.3, false);
+disp(<span class="string">'With sigma_s and 0.9*sigma_i'</span>);
+myBilateralFiltering(x.imageOrig, 0.55, 2.97, false);
+disp(<span class="string">'With sigma_s and 1.1*sigma_i'</span>);
+myBilateralFiltering(x.imageOrig, 0.55, 3.63, false);
+toc;
+</pre><pre class="codeoutput">Input : grass.png
+RSMD for sigma_s = 0.54 and sigma_i = 10 =&gt; 0.036503
+With 0.9*sigma_s and sigma_i
+RSMD for sigma_s = 0.486 and sigma_i = 10 =&gt; 0.037702
+With 1.1*sigma_s and sigma_i
+RSMD for sigma_s = 0.594 and sigma_i = 10 =&gt; 0.036823
+With sigma_s and 0.9*sigma_i
+RSMD for sigma_s = 0.54 and sigma_i = 9 =&gt; 0.036506
+With sigma_s and 1.1*sigma_i
+RSMD for sigma_s = 0.54 and sigma_i = 11 =&gt; 0.036501
+Elapsed time is 50.002176 seconds.
+Input : honeyCombReal.png
+RSMD for sigma_s = 0.6 and sigma_i = 1 =&gt; 0.035986
+With 0.9*sigma_s and sigma_i
+RSMD for sigma_s = 0.54 and sigma_i = 1 =&gt; 0.036045
+With 1.1*sigma_s and sigma_i
+RSMD for sigma_s = 0.66 and sigma_i = 1 =&gt; 0.037507
+With sigma_s and 0.9*sigma_i
+RSMD for sigma_s = 0.6 and sigma_i = 0.9 =&gt; 0.036193
+With sigma_s and 1.1*sigma_i
+RSMD for sigma_s = 0.6 and sigma_i = 1.1 =&gt; 0.03585
+Elapsed time is 196.182917 seconds.
+Input : barbara.mat
+RSMD for sigma_s = 0.55 and sigma_i = 3.3 =&gt; 0.046507
+With 0.9*sigma_s and sigma_i
+RSMD for sigma_s = 0.495 and sigma_i = 3.3 =&gt; 0.04595
+With 1.1*sigma_s and sigma_i
+RSMD for sigma_s = 0.605 and sigma_i = 3.3 =&gt; 0.048731
+With sigma_s and 0.9*sigma_i
+RSMD for sigma_s = 0.55 and sigma_i = 2.97 =&gt; 0.046513
+With sigma_s and 1.1*sigma_i
+RSMD for sigma_s = 0.55 and sigma_i = 3.63 =&gt; 0.046503
+Elapsed time is 806.098608 seconds.
+</pre><img vspace="5" hspace="5" src="myMainScript_01.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_02.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_03.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_04.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_05.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_06.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_07.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_08.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_09.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_10.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_11.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_12.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_13.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_14.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_15.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Bilateral Filtering
+% We used a spatial gaussian kernel of size $ks\_s=max\{5,
+% floor(4\cdot\sigma_s)\}$ and further converted it into an odd
+% value by adding 1 if required.
+%
+% All images (original, corrupted and resultant) were linearly stretched so
+% that the intensities fell in the range [0,1]. Comparisions between images were made after this step.
+%
+% The optimal values of $\sigma_s$ and $\sigma_i$ for the input images were
+% found to be:
+%%
+% 
+% # *barbara* - $\sigma_s$=0.55 and $\sigma_i$=3.3
+% # *grassNoisy* - $\sigma_s$=0.54 and $\sigma_i$=10
+% # *honeyCombReal_Noisy* - $\sigma_s$=0.6 and $\sigma_i$=1.0
+% 
+%%
+tic;
+disp('Input : grass.png');
+x = imread('../data/grass.png');
+x = im2single(x);
+S = myBilateralFiltering(x, 0.54, 10, false);
+% save images
+save(['../images/grassNoisy.mat'], '-struct', 'S');
+
+disp('With 0.9*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.486, 10, false);
+disp('With 1.1*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.594 ,10, false);
+disp('With sigma_s and 0.9*sigma_i');
+myBilateralFiltering(x, 0.54, 9, false);
+disp('With sigma_s and 1.1*sigma_i');
+myBilateralFiltering(x, 0.54, 11, false);
+toc;
+
+tic;
+disp('Input : honeyCombReal.png');
+x = imread('../data/honeyCombReal.png');
+x = im2single(x);
+S = myBilateralFiltering(x, 0.6, 1, false);
+% save images
+save(['../images/honeyCombReal.mat'], '-struct', 'S');
+
+disp('With 0.9*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.54, 1, false);
+disp('With 1.1*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.66, 1, false);
+disp('With sigma_s and 0.9*sigma_i');
+myBilateralFiltering(x, 0.6, 0.9, false);
+disp('With sigma_s and 1.1*sigma_i');
+myBilateralFiltering(x, 0.6, 1.1, false);
+toc;
+
+tic;
+disp('Input : barbara.mat');
+x = load('../data/barbara.mat');
+S = myBilateralFiltering(x.imageOrig, 0.55, 3.3, false);
+% save images
+save(['../images/barbara.mat'], '-struct', 'S');
+
+disp('With 0.9*sigma_s and sigma_i');
+myBilateralFiltering(x.imageOrig, 0.495, 3.3, false);
+disp('With 1.1*sigma_s and sigma_i');
+myBilateralFiltering(x.imageOrig, 0.605, 3.3, false);
+disp('With sigma_s and 0.9*sigma_i');
+myBilateralFiltering(x.imageOrig, 0.55, 2.97, false);
+disp('With sigma_s and 1.1*sigma_i');
+myBilateralFiltering(x.imageOrig, 0.55, 3.63, false);
+toc;
+
+##### SOURCE END #####
+--></body></html>

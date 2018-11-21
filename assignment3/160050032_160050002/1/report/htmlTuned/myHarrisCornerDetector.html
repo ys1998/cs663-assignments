@@ -1,0 +1,298 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>myHarrisCornerDetector</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-09-02"><meta name="DC.source" content="myHarrisCornerDetector.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> [] = myHarrisCornerDetector()
+S = load(<span class="string">'../data/boat.mat'</span>);
+I=S.imageOrig; <span class="comment">%load the original image</span>
+
+I = I/(max(max(I))); <span class="comment">% make the intensity range from 0 to 1</span>
+<span class="comment">% initialize parameters for tuning</span>
+sigma_1 = 1; <span class="comment">% sigma_1 is the weight gaussian</span>
+sigma_2 = 1; <span class="comment">% sigma_2 is the gaussian filtering for original image to get Ix,Iy</span>
+
+<span class="comment">% filter the image before extracting the derivatives</span>
+
+I = imgaussfilt(I,sigma_2);
+[Ix,Iy] = imgradientxy(I);
+
+<span class="comment">% copmute the Ix^2, Iy^2 ,IxIy matrices before computing the structure</span>
+<span class="comment">% tensor</span>
+
+Ix2 = Ix.^2;
+figure;
+imshow(mat2gray(Ix)),colorbar;
+title(<span class="string">'Ix'</span>);
+Iy2 = Iy.^2;
+figure;
+imshow(mat2gray(Iy)),colorbar;
+title(<span class="string">'Iy'</span>);
+IxIy = Ix.*Iy;
+
+g = fspecial(<span class="string">'gaussian'</span>, [6 6] ,sigma_1);
+Ix2 = imfilter(Ix2,g,<span class="string">'same'</span>);
+Iy2 = imfilter(Iy2,g,<span class="string">'same'</span>);
+IxIy = imfilter(IxIy,g,<span class="string">'same'</span>);
+
+[X,Y] = size(I);
+eigen1 = double(zeros(X,Y)); <span class="comment">% smaller eigen value</span>
+eigen2 = double(zeros(X,Y)); <span class="comment">% larger eigen value</span>
+Result = double(zeros(X,Y)); <span class="comment">% cornerness measure</span>
+k = 0.15 <span class="comment">% tuning parameter for measuring</span>
+<span class="keyword">for</span> i=1:X-1
+    <span class="keyword">for</span> j=1:Y-1
+        <span class="keyword">if</span>(i == 1 || j == 1)
+            resIx2 = 0;
+            resIy2 = 0;
+            resIxIy = 0;
+            <span class="keyword">for</span> a=0:1
+                <span class="keyword">for</span> b=0:1
+                    resIx2 = resIx2 + Ix2(a+i,b+j);
+                    resIy2 = resIy2 + Iy2(a+i,b+j);
+                    resIxIy = resIxIy + IxIy(a+i,b+j);
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            tensor = double(zeros(2,2));
+            tensor(1,1) = resIx2;
+            tensor(1,2) = resIxIy;
+            tensor(2,1) = resIxIy;
+            tensor(2,2) = resIy2;
+            <span class="comment">%tensor;</span>
+            e = eig(tensor);
+            <span class="comment">%min(e);</span>
+            <span class="comment">%max(e);</span>
+            eigen1(i,j) = min(e);
+            eigen2(i,j) = max(e);
+            Result(i,j) = (eigen1(i,j)*eigen2(i,j)) - k*(eigen1(i,j)+eigen2(i,j))*(eigen1(i,j)+eigen2(i,j));
+        <span class="keyword">else</span>
+            resIx2 = 0;
+            resIy2 = 0;
+            resIxIy = 0;
+            <span class="keyword">for</span> a=-1:1
+                <span class="keyword">for</span> b=-1:1
+                    resIx2 = resIx2 + Ix2(a+i,b+j);
+                    resIy2 = resIy2 + Iy2(a+i,b+j);
+                    resIxIy = resIxIy + IxIy(a+i,b+j);
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            tensor = double(zeros(2,2));
+            tensor(1,1) = resIx2;
+            tensor(1,2) = resIxIy;
+            tensor(2,1) = resIxIy;
+            tensor(2,2) = resIy2;
+            <span class="comment">%tensor;</span>
+            e = eig(tensor);
+            <span class="comment">%min(e);</span>
+            <span class="comment">%max(e);</span>
+            eigen1(i,j) = min(e);
+            eigen2(i,j) = max(e);
+            Result(i,j) = (eigen1(i,j)*eigen2(i,j)) - k*(eigen1(i,j)+eigen2(i,j))*(eigen1(i,j)+eigen2(i,j));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+Corners = (Result &gt; 0.35);
+max(max(Result))
+
+<span class="comment">% display all the results</span>
+ figure;
+ imshow(mat2gray(eigen1));
+ title(<span class="string">'Minimum eigen value'</span>),colorbar;
+ figure;
+ imshow(mat2gray(eigen2));
+ title(<span class="string">'Maximum eigen value'</span>),colorbar;
+ figure;
+ imshow(mat2gray(Result)),colorbar;
+ title(<span class="string">'Cornerness measure'</span>);
+ figure;
+ imshow(mat2gray(Corners)),colorbar;
+ title(<span class="string">'Thresholded Cornerness measure'</span>);
+ figure;
+ imshow(mat2gray(Corners+I)),colorbar;
+ title(<span class="string">'Cornerness measure superimposed on image'</span>);
+</pre><pre class="codeoutput">
+k =
+
+    0.1500
+
+
+ans =
+
+   14.6512
+
+</pre><img vspace="5" hspace="5" src="myHarrisCornerDetector_01.png" style="width:319px;height:285px;" alt=""> <img vspace="5" hspace="5" src="myHarrisCornerDetector_02.png" style="width:319px;height:285px;" alt=""> <img vspace="5" hspace="5" src="myHarrisCornerDetector_03.png" style="width:319px;height:285px;" alt=""> <img vspace="5" hspace="5" src="myHarrisCornerDetector_04.png" style="width:319px;height:285px;" alt=""> <img vspace="5" hspace="5" src="myHarrisCornerDetector_05.png" style="width:319px;height:285px;" alt=""> <img vspace="5" hspace="5" src="myHarrisCornerDetector_06.png" style="width:319px;height:285px;" alt=""> <img vspace="5" hspace="5" src="myHarrisCornerDetector_07.png" style="width:319px;height:285px;" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [] = myHarrisCornerDetector()
+S = load('../data/boat.mat');
+I=S.imageOrig; %load the original image
+
+I = I/(max(max(I))); % make the intensity range from 0 to 1
+% initialize parameters for tuning
+sigma_1 = 1; % sigma_1 is the weight gaussian
+sigma_2 = 1; % sigma_2 is the gaussian filtering for original image to get Ix,Iy
+
+% filter the image before extracting the derivatives
+
+I = imgaussfilt(I,sigma_2);
+[Ix,Iy] = imgradientxy(I);
+
+% copmute the Ix^2, Iy^2 ,IxIy matrices before computing the structure
+% tensor
+
+Ix2 = Ix.^2;
+figure;
+imshow(mat2gray(Ix)),colorbar;
+title('Ix');
+Iy2 = Iy.^2;
+figure;
+imshow(mat2gray(Iy)),colorbar;
+title('Iy');
+IxIy = Ix.*Iy;
+
+g = fspecial('gaussian', [6 6] ,sigma_1);
+Ix2 = imfilter(Ix2,g,'same');
+Iy2 = imfilter(Iy2,g,'same');
+IxIy = imfilter(IxIy,g,'same');
+
+[X,Y] = size(I);
+eigen1 = double(zeros(X,Y)); % smaller eigen value
+eigen2 = double(zeros(X,Y)); % larger eigen value
+Result = double(zeros(X,Y)); % cornerness measure
+k = 0.15 % tuning parameter for measuring 
+for i=1:X-1
+    for j=1:Y-1
+        if(i == 1 || j == 1) 
+            resIx2 = 0;
+            resIy2 = 0;
+            resIxIy = 0;
+            for a=0:1
+                for b=0:1
+                    resIx2 = resIx2 + Ix2(a+i,b+j);
+                    resIy2 = resIy2 + Iy2(a+i,b+j);
+                    resIxIy = resIxIy + IxIy(a+i,b+j);
+                end
+            end
+            tensor = double(zeros(2,2));
+            tensor(1,1) = resIx2;
+            tensor(1,2) = resIxIy;
+            tensor(2,1) = resIxIy;
+            tensor(2,2) = resIy2;
+            %tensor;
+            e = eig(tensor);
+            %min(e);
+            %max(e);
+            eigen1(i,j) = min(e);
+            eigen2(i,j) = max(e);
+            Result(i,j) = (eigen1(i,j)*eigen2(i,j)) - k*(eigen1(i,j)+eigen2(i,j))*(eigen1(i,j)+eigen2(i,j));
+        else     
+            resIx2 = 0;
+            resIy2 = 0;
+            resIxIy = 0;
+            for a=-1:1
+                for b=-1:1
+                    resIx2 = resIx2 + Ix2(a+i,b+j);
+                    resIy2 = resIy2 + Iy2(a+i,b+j);
+                    resIxIy = resIxIy + IxIy(a+i,b+j);
+                end
+            end
+            tensor = double(zeros(2,2));
+            tensor(1,1) = resIx2;
+            tensor(1,2) = resIxIy;
+            tensor(2,1) = resIxIy;
+            tensor(2,2) = resIy2;
+            %tensor;
+            e = eig(tensor);
+            %min(e);
+            %max(e);
+            eigen1(i,j) = min(e);
+            eigen2(i,j) = max(e);
+            Result(i,j) = (eigen1(i,j)*eigen2(i,j)) - k*(eigen1(i,j)+eigen2(i,j))*(eigen1(i,j)+eigen2(i,j));
+        end
+    end
+end    
+Corners = (Result > 0.35);
+max(max(Result))
+
+% display all the results
+ figure;
+ imshow(mat2gray(eigen1));
+ title('Minimum eigen value'),colorbar;
+ figure;
+ imshow(mat2gray(eigen2));
+ title('Maximum eigen value'),colorbar;
+ figure;
+ imshow(mat2gray(Result)),colorbar;
+ title('Cornerness measure');
+ figure;
+ imshow(mat2gray(Corners)),colorbar;
+ title('Thresholded Cornerness measure');
+ figure;
+ imshow(mat2gray(Corners+I)),colorbar;
+ title('Cornerness measure superimposed on image');
+ 
+ 
+##### SOURCE END #####
+--></body></html>

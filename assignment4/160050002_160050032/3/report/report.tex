@@ -1,0 +1,20 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\title{CS663 Assignment 4}
+\author{Yash Shah, \textit{160050002}\\Utkarsh Gupta, \textit{160050032}}
+\begin{document}
+	\maketitle
+	\section*{Question 3}
+	A simple method that can be used for reporting whether a given test image belonged to one of the faces in the training set or not, is this:
+	\begin{itemize}
+		\item Compute the eigen coefficients by projecting the mean-shifted test image (i.e. $\textbf{z} - \bar{\textbf{x}}$) onto the (dimensionality reduced) eigen space (i.e. $\textbf{V}_k$) generated using the training set i.e. $	\alpha_k = \textbf{V}_k\cdot\left( \textbf{z} - \bar{\textbf{x}}\right)$ 
+		\item Find out the minimum value of the Euclidean norm of the difference of $\alpha_k$ and the eigen coefficients of all training images i.e. $d = \min_i ||\alpha_k - \alpha_{ik}||$
+		\item For some threshold $\epsilon$, the test image will be assigned the same label as that of $\arg\min_i ||\alpha_k - \alpha_{ik}||$ only if $d<\epsilon$. Otherwise, the test image will be reported to not belong to any face of the training set.
+		\item A suitable value of $\epsilon$, separate for each label $i$ can be obtained via the following:
+		$$
+		\epsilon_i = \max||\alpha_{lk} - \alpha_{mk}||,\hspace{1em} l\neq m
+		$$
+		(here $\alpha_{jk}$'s are the eigen coefficients of training images with label $i$; that is, $\epsilon_i$ is the maximum distance between the eigen coefficients of any two training images having the same label)
+	\end{itemize}
+Using the proposed solution, results (false positives and false negatives) obtained on the ORL dataset are as shown in the \textbf{html/} folder.
+\end{document}

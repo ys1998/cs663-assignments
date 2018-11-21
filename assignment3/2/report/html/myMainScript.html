@@ -1,0 +1,242 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Mean-Shift Segmentation</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-09-02"><meta name="DC.source" content="myMainScript.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Mean-Shift Segmentation</h1><!--introduction--><p>We implemented the Mean-Shift algorithm by first downsampling the image (gaussian smoothing with \sigma=1 followed by resizing to half the size along both dimensions) and then scaling it to the range [0,1].</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Parameter tuning</a></li><li><a href="#4">Observations</a></li></ul></div><h2 id="1">Parameter tuning</h2><pre class="language-matlab">cntr = 0;
+<span class="keyword">for</span> hc=0.005:0.005:0.1
+    <span class="keyword">for</span> hs=5:5:30
+        res = myMeanShiftSegmentation(img, hc, hs);
+        imwrite(res, [<span class="string">'../images/trial_'</span>,num2str(cntr),<span class="string">'.png'</span>]);
+        cntr = cntr+1;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p>All resultant images were compared visually. We chose the best output by looking for meaningful and distinct (i.e. less interpolation between segments) segments, and found the following results:</p><pre class="codeinput"><span class="comment">% variables for displaying images</span>
+myNumOfColors = 200;
+myColorScale = repmat((0:1/(myNumOfColors-1):1)',1,3);
+
+disp(<span class="string">'Original image'</span>);
+tic;
+img = im2single(imread(<span class="string">'../data/baboonColor.png'</span>));
+<span class="comment">% smoothen the image</span>
+img = imgaussfilt(img, 1);
+<span class="comment">% downsample image</span>
+img = imresize(img, 0.5);
+<span class="comment">% image has been rescaled to [0,1] range</span>
+<span class="comment">% so hc has to be adjusted accordingly</span>
+figure; imagesc(img); title(<span class="string">'Original image'</span>);
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis <span class="string">tight</span>; axis <span class="string">off</span>;
+
+toc; tic;
+disp(<span class="string">'Tuned output, h_c=0.05, h_s=20'</span>);
+res = myMeanShiftSegmentation(img, 0.05, 20);
+figure; imagesc(res); title(<span class="string">'Tuned output, h_c=0.05, h_s=20'</span>);
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis <span class="string">tight</span>; axis <span class="string">off</span>;
+<span class="comment">% save image</span>
+save([<span class="string">'../images/tunedBaboon.mat'</span>], <span class="string">'res'</span>);
+
+toc; tic;
+disp(<span class="string">'Output for h_c=0.2, h_s=20'</span>);
+res = myMeanShiftSegmentation(img, 0.2, 20);
+figure; imagesc(res); title(<span class="string">'Output for h_c=0.2, h_s=20'</span>);
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis <span class="string">tight</span>; axis <span class="string">off</span>;
+
+toc; tic;
+disp(<span class="string">'Output for h_c=0.005, h_s=20'</span>);
+res = myMeanShiftSegmentation(img, 0.005, 20);
+figure; imagesc(res); title(<span class="string">'Output for h_c=0.005, h_s=20'</span>);
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis <span class="string">tight</span>; axis <span class="string">off</span>;
+
+toc; tic;
+disp(<span class="string">'Output for h_c=0.05, h_s=50'</span>);
+res = myMeanShiftSegmentation(img, 0.05, 50);
+figure; imagesc(res); title(<span class="string">'Output for h_c=0.05, h_s=50'</span>);
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis <span class="string">tight</span>; axis <span class="string">off</span>;
+
+toc; tic;
+disp(<span class="string">'Output for h_c=0.05, h_s=5'</span>);
+res = myMeanShiftSegmentation(img, 0.05, 5);
+figure; imagesc(res); title(<span class="string">'Output for h_c=0.05, h_s=5'</span>);
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis <span class="string">tight</span>; axis <span class="string">off</span>;
+toc;
+</pre><pre class="codeoutput">Original image
+Elapsed time is 0.093338 seconds.
+Tuned output, h_c=0.05, h_s=20
+Elapsed time is 79.566733 seconds.
+Output for h_c=0.2, h_s=20
+Elapsed time is 80.835150 seconds.
+Output for h_c=0.005, h_s=20
+Elapsed time is 86.300257 seconds.
+Output for h_c=0.05, h_s=50
+Elapsed time is 82.222428 seconds.
+Output for h_c=0.05, h_s=5
+Elapsed time is 80.574358 seconds.
+</pre><img vspace="5" hspace="5" src="myMainScript_01.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_02.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_03.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_04.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_05.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_06.png" alt=""> <h2 id="4">Observations</h2><p>We can clearly see (from the output images generated by using neighborhood parameter values) that the chosen values are optimal. High values of h_c and h_s favour intermixing of segments (diffused boundaries) whereas lower values don't produce any significant changes.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Mean-Shift Segmentation
+%
+% We implemented the Mean-Shift algorithm by first downsampling the image 
+% (gaussian smoothing with \sigma=1 followed by resizing to half the size
+% along both dimensions) and then scaling it to the range [0,1].
+%
+%% Parameter tuning
+% 
+%   cntr = 0;
+%   for hc=0.005:0.005:0.1
+%       for hs=5:5:30
+%           res = myMeanShiftSegmentation(img, hc, hs);
+%           imwrite(res, ['../images/trial_',num2str(cntr),'.png']);
+%           cntr = cntr+1;
+%       end
+%   end
+% 
+%%
+% All resultant images were compared visually. We chose the best output by
+% looking for meaningful and distinct (i.e. less interpolation between
+% segments) segments, and found the following results:
+%%
+
+% variables for displaying images
+myNumOfColors = 200;
+myColorScale = repmat((0:1/(myNumOfColors-1):1)',1,3);
+
+disp('Original image');
+tic;
+img = im2single(imread('../data/baboonColor.png'));
+% smoothen the image
+img = imgaussfilt(img, 1);
+% downsample image
+img = imresize(img, 0.5);
+% image has been rescaled to [0,1] range
+% so hc has to be adjusted accordingly
+figure; imagesc(img); title('Original image');
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis tight; axis off;
+
+toc; tic;
+disp('Tuned output, h_c=0.05, h_s=20');
+res = myMeanShiftSegmentation(img, 0.05, 20);
+figure; imagesc(res); title('Tuned output, h_c=0.05, h_s=20');
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis tight; axis off;
+% save image
+save(['../images/tunedBaboon.mat'], 'res');
+
+toc; tic;
+disp('Output for h_c=0.2, h_s=20');
+res = myMeanShiftSegmentation(img, 0.2, 20);
+figure; imagesc(res); title('Output for h_c=0.2, h_s=20');
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis tight; axis off;
+
+toc; tic;
+disp('Output for h_c=0.005, h_s=20');
+res = myMeanShiftSegmentation(img, 0.005, 20);
+figure; imagesc(res); title('Output for h_c=0.005, h_s=20');
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis tight; axis off;
+
+toc; tic;
+disp('Output for h_c=0.05, h_s=50');
+res = myMeanShiftSegmentation(img, 0.05, 50);
+figure; imagesc(res); title('Output for h_c=0.05, h_s=50');
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis tight; axis off;
+
+toc; tic;
+disp('Output for h_c=0.05, h_s=5');
+res = myMeanShiftSegmentation(img, 0.05, 5);
+figure; imagesc(res); title('Output for h_c=0.05, h_s=5');
+colormap(myColorScale);
+daspect ([1 1 1]);
+axis tight; axis off;
+toc;
+
+%% Observations
+% 
+% We can clearly see (from the output images generated by using
+% neighborhood parameter values) that the chosen values are optimal. High
+% values of h_c and h_s favour intermixing of segments (diffused boundaries)
+% whereas lower values don't produce any significant changes.
+##### SOURCE END #####
+--></body></html>

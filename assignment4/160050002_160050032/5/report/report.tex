@@ -1,0 +1,30 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[margin=1in]{geometry}
+\title{CS663 Assignment 4}
+\author{Yash Shah, \textit{160050002}\\Utkarsh Gupta, \textit{160050032}}
+
+\begin{document}
+
+\maketitle
+
+
+\section*{Question 5}
+${C}$ is $d \times d$ symmetric matrix and hence by spectral theorem it has $d$ orthogonal eigenvectors with real eigenvalues. 
+Let the eigen decomposition of ${C}$
+equal ${U}{D}{U}^{T} $ 
+where ${U} = [{u_1}|{u_2}|{u_3}|...|{u_d}]$ 
+where ${u_i}$ is the $d \times 1$ eigenvector corresponding to the $i^{th}$ largest eigen value and and ${D}$ is the diagonal matrix whose $D(i,i) = e_i$ where $e_i$ is the $i^{th}$ largest eigen value and rest entries are zero. Since all ${u_i}$ are orthonormal and there are $d$ of them it implies any vector in $R^{d}$ can be written as a linear combination of them i.e. ${f} = \sum_{i=1}^{d} c_i {u_i}$ where $c_i \in R$. Thus
+$$ {f}^{T}{Cf} = {f}^{T}{UDU}^{T}{f} = {f}^{T}{UD}(f^{T}{U})^{T} $$
+and using ${f} = \sum_{i=1}^{d} c_i {u_i}$ we know that 
+$${f}^{T}{U} = [{f}^{T}{u}_1|{f}^{T}{u}_2|...|{f}^{T}{u}_d] = [c_1|c_2|c_3|...|c_d]$$
+thus combining both equations we have
+$$ {f}^{T}{Cf} = [c_1|c_2|c_3|...|c_d] {D} [c_1|c_2|c_3|...|c_d]^{T} = \sum_{i=1}^{d} e_i c_i^{2} $$
+Since $f \bot u_1$ as given in question, $c_1 = 0 $ and hence $ {f}^{T}{Cf} = 0 + \sum_{2}^{d} e_i c_i^2$. Without loss of generality we can assume ${f}$ to be a unit vector, which implies $\sum_{i=2}^{d} c_i^2 = 1$ and hence to maximize $\sum_{2}^{d} e_i c_i^2$  we choose $c_i = 1$ for that value of $i$ for which $e_i$ is maximum, and zero on rest.
+
+This is because $\sum_{2}^{d} e_i c_i^2$ is a linear combination of $\{e_i\}_{i=1}^d$ with non-negative weights ($c_i^2\geq0\ \forall i)$ that sum up to one, and hence it is also a convex combination of $\{e_i\}_{i=1}^d$. Thus, it will always lie within the range $[\min e_i, \max e_i]$.
+
+ Thus we get $c_2 = 1$, and rest $c_i = 0$ (since it is given that all eigen values are distinct and $rank(C) > 2$, only $c_2$ should be 1). Hence ${f} = u_2$ or the eigenvector with the second largest eigenvalue, which we set out to prove. 
+
+\end{document}

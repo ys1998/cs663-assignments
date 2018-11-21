@@ -1,9 +1,11 @@
-function res = myHM(input_image, input_mask, ref_image, ref_mask)
+function[] = myHM(input_image, input_mask, ref_image, ref_mask)
+tic
 % load images
 I1 = imread(input_image);
 I2 = imread(ref_image);
 [H,W,C] = size(I1);
-res = zeros(H,W,C);
+res = zeros(H,W,C);  % HM image
+res1 = zeros(H,W,C); % HE image
 % load masks
 mask1 = imread(input_mask);
 mask2 = imread(ref_mask);
@@ -21,10 +23,50 @@ for ch = 1:C
                 % find intensity value 'p' such that cdf2(p) is
                 % closest to cdf1(img(i,j))
                 [~, pos] = min(abs(cdf2-cdf1(1+img1(i,j))));
-                res(i,j,ch) = pos-1;
+                res(i,j,ch) = (pos-1)/255;
+                % find histogram equalized pixel value
+                res1(i,j,ch) = cdf1(img1(i,j)+1);
             end
         end
     end
 end
-imshow(uint8(res));
+
+myNumOfColors = 200;
+myColorScale = repmat((0:1/(myNumOfColors-1):1)',1,3);
+
+imagesc(I1); title('Original image');
+colormap(myColorScale);
+if size(I1,3)==3
+    colormap jet;
+else
+    colormap gray;
+end
+daspect ([1 1 1]);
+axis tight;
+colorbar
+
+
+figure; imagesc(res); title('Histogram Matched image');
+colormap(myColorScale);
+if size(I1,3)==3
+    colormap jet;
+else
+    colormap gray;
+end
+daspect ([1 1 1]);
+axis tight;
+colorbar
+
+figure; imagesc(res1); title('Histogram Equalized image');
+colormap(myColorScale);
+if size(I1,3)==3
+    colormap jet;
+else
+    colormap gray;
+end
+daspect ([1 1 1]);
+axis tight;
+colorbar
+
+toc
 end

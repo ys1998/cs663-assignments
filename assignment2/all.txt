@@ -1,0 +1,1077 @@
+%% Unsharp Masking
+% We performed *unsharp masking* on the images _lionCrop.mat_ and
+% _superMoonCrop.mat_ using a 5x5 gaussian mask over a wide range of parameters
+% (both $\sigma$ and _scale_), and visually compared the results: 
+%%
+% 
+%   for sigma = [0.5, 0.7, 1, 3, 5, 10]
+%       for scale = [1, 3, 5, 10, 20]
+%           myUnsharpMasking('../data/lionCrop.mat',sigma,scale);
+%           myUnsharpMasking('../data/superMoonCrop.mat',sigma,scale);
+%       end
+%   end
+%
+%%
+% The optimal parameters from the above range were found to be
+% $\sigma$=0.5, _scale_=10 for _lionCrop.mat_ and $\sigma$=3, _scale_=5 for
+% _superMoonCrop.mat_
+%%
+function[] = myMainScript()
+tic;
+myUnsharpMasking('../data/lionCrop.mat', 0.5, 10);
+toc;
+tic;
+myUnsharpMasking('../data/superMoonCrop.mat', 3, 5);
+toc;
+end
+
+function[] = myUnsharpMasking(img_path, sigma, scale)
+% load .mat file in memory
+% image is loaded as 'imageOrig'
+x = load(img_path);
+[~, file, ~] = fileparts(img_path);
+F = x.imageOrig;
+% create mask for blurring
+G = fspecial('gaussian', 5, sigma);
+% blur image using convolution
+blurred_F = imfilter(F, G, 'replicate', 'conv');
+% compute sharpened image
+res = F + scale*(F-blurred_F);
+% stretch images linearly
+F = (F - min(F(:))) / (max(F(:)) - min(F(:)));
+res = (res - min(res(:))) / (max(res(:)) - min(res(:)));
+
+% save images
+S.original = F; S.result = res;
+save(['../images/',file,'.mat'], '-struct', 'S');
+
+% display original and sharpened image side by side
+figure;
+imagesc([F, res]); title(['(left) Original, (right) Sharpened \sigma=',num2str(sigma),' scale=',num2str(scale)]);
+colormap gray; daspect([1 1 1]); axis tight;
+colorbar;
+end
+
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Unsharp Masking</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-08-19"><meta name="DC.source" content="myMainScript.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Unsharp Masking</h1><!--introduction--><p>We performed <b>unsharp masking</b> on the images <i>lionCrop.mat</i> and <i>superMoonCrop.mat</i> using a 5x5 gaussian mask over a wide range of parameters (both <img src="myMainScript_eq11373214381793991308.png" alt="$\sigma$" style="width:5px;height:5px;"> and <i>scale</i>), and visually compared the results:</p><!--/introduction--><pre class="language-matlab"><span class="keyword">for</span> sigma = [0.5, 0.7, 1, 3, 5, 10]
+    <span class="keyword">for</span> scale = [1, 3, 5, 10, 20]
+        myUnsharpMasking(<span class="string">'../data/lionCrop.mat'</span>,sigma,scale);
+        myUnsharpMasking(<span class="string">'../data/superMoonCrop.mat'</span>,sigma,scale);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p>The optimal parameters from the above range were found to be <img src="myMainScript_eq11373214381793991308.png" alt="$\sigma$" style="width:5px;height:5px;">=0.5, <i>scale</i>=10 for <i>lionCrop.mat</i> and <img src="myMainScript_eq11373214381793991308.png" alt="$\sigma$" style="width:5px;height:5px;">=3, <i>scale</i>=5 for <i>superMoonCrop.mat</i></p><pre class="codeinput"><span class="keyword">function</span>[] = myMainScript()
+tic;
+myUnsharpMasking(<span class="string">'../data/lionCrop.mat'</span>, 0.5, 10);
+toc;
+tic;
+myUnsharpMasking(<span class="string">'../data/superMoonCrop.mat'</span>, 3, 5);
+toc;
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Elapsed time is 0.183900 seconds.
+Elapsed time is 0.229142 seconds.
+</pre><img vspace="5" hspace="5" src="myMainScript_01.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_02.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Unsharp Masking
+% We performed *unsharp masking* on the images _lionCrop.mat_ and
+% _superMoonCrop.mat_ using a 5x5 gaussian mask over a wide range of parameters
+% (both $\sigma$ and _scale_), and visually compared the results: 
+%%
+% 
+%   for sigma = [0.5, 0.7, 1, 3, 5, 10]
+%       for scale = [1, 3, 5, 10, 20]
+%           myUnsharpMasking('../data/lionCrop.mat',sigma,scale);
+%           myUnsharpMasking('../data/superMoonCrop.mat',sigma,scale);
+%       end
+%   end
+%
+%%
+% The optimal parameters from the above range were found to be
+% $\sigma$=0.5, _scale_=10 for _lionCrop.mat_ and $\sigma$=3, _scale_=5 for
+% _superMoonCrop.mat_
+%%
+function[] = myMainScript()
+tic;
+myUnsharpMasking('../data/lionCrop.mat', 0.5, 10);
+toc;
+tic;
+myUnsharpMasking('../data/superMoonCrop.mat', 3, 5);
+toc;
+end
+
+##### SOURCE END #####
+--></body></html>
+
+%% MyMainScript
+
+tic;
+%% Your code here
+%x = imread('../data/grassNoisy.png');
+%myPatchBasedFiltering(x, false);
+% after parameter tuning, remove the parameter for loop in the code
+% and use these statements
+%
+ %S = myPatchBasedFiltering('../data/grassNoisy.png', false);
+% save(['../images/grassNoisy.mat'], '-struct', 'S');
+%
+%x = imread('../data/honeyCombNoisy.png');
+%myPatchBasedFiltering(x, false);
+    %H=load('../data/grassNoisy.mat');
+    %matObj = matfile('Barbara.mat');
+    %details = whos(matObj)
+    %I1 = H.imageOrig;
+    %figure;
+    %imshow(uint8(I1));
+    
+    
+    
+ H = load('../data/Barbara.mat');
+ I = H.imageOrig;
+ myPatchBasedFiltering(I,I,0,1);
+ H = load('../data/grassNoisy.mat');
+ I2 = H.imgCorrupt;
+ I1 = imread('../data/grass.png');
+ myPatchBasedFiltering(I1,I2,1,2);
+ H = load('../data/honeyCombReal_Noisy.mat');
+ I2 = H.imgCorrupt;
+ I1 = imread('../data/honeyCombReal.png');
+ myPatchBasedFiltering(I1,I2,1,3);
+toc;
+
+%% Function for patch based filtering.
+%Image1 is the correct image, Image2 is the corrupted image
+%is_corrupt for the two types of input type similary y
+function [] = myPatchBasedFiltering(Image1,Image2,is_corrupt,y)
+if(is_corrupt)
+   I0 = double(Image1);
+   [X,Y] = size(I0);
+   I1 = double(Image2)*256;
+   I2 = double(zeros(X,Y));
+else
+   I0 = Image1;
+    [X,Y] = size(I0);
+    I1 = zeros(X,Y);
+    I2 = double(zeros(X,Y)); % I2 stores the modified image
+    %corrupt I1
+    rng(0);
+     range_intensity = max(max(I0))-min(min(I0));
+     for i=1:X
+         for j=1:Y
+             x = normrnd(0,0.05*range_intensity);
+             I1(i,j) = I0(i,j) + x;    
+         end
+     end 
+end    
+if y == 1
+    z = 1.0;
+elseif y == 2
+    z = 0.5;
+else 
+    z = 1.0;
+end    
+%% Main body
+param= [26.1,29.0,31.9]; % param array stores the values of 'h' to be tried
+rsmd  = zeros(size(param)); % rsmd array stores the rsmd values for the correpsonding value of parameter
+% loop around each pixel and apply the patch based filetr on it
+isotropic_patch = zeros(9,9);
+for i=1:9
+    for j=1:9
+        dist = (i-5)*(i-5)+(j-5)*(j-5);
+        isotropic_patch(i,j) = exp(-dist/z);
+    end
+end
+
+% dataS precalculates all the 9*9 patches saving a lot og repeated
+% calculation and making the code faster
+dataS = double(zeros(9,9,X,Y)); 
+for i=1:X
+     for k=1:Y
+         for a=-4:4
+             for b=-4:4
+                  if(i+a < 1 || k+b < 1 || k+b > Y || i+a > X) 
+                       dataS(a+5,b+5,i,k) = -1;
+                  else
+                       dataS(a+5,b+5,i,k) = I1(i+a,k+b);
+                  end    
+              end
+         end  
+     end    
+ end 
+
+% The main loop of the code were the filtered image gets constructed
+for p=1:3
+    h = param(p);
+    rsmd_temp=0.0;
+    for i=1:X  
+        
+        for j=1:Y
+            % obtain the window by determining the four corners such that
+            % 9*9 patch ceneterd here always lies in the 25*25 window
+            lx = max(1,j-8);
+            rx = min(X,j+8);
+            uy = max(1,i-8);
+            dy = min(Y,i+8);
+            window = I1(uy:dy,lx:rx);
+            % for each entry of window weight will finally store its cumulative
+            % weight, its just initialized with window for the sake of matching
+            % the size
+            weight = window;
+            % find the patch for the current pixel
+            patchRef = zeros(9,9);
+            for a=-4:4
+                for b=-4:4
+                    if(i+a < 1 || i+a > Y || j+b < 1 || j+b > X) 
+                        patchRef(a+5,b+5)=-1;
+                    else
+                        patchRef(a+5,b+5) = I1(i+a,j+b);
+                    end    
+                end
+            end    
+            % iterarte over the pixels of the window
+            for i1=uy:dy
+                for j1=lx:rx
+                    patchNew = dataS(:,:,i1,j1); 
+                    % we have patchNew and patchRef to calculate the weight of
+                    % this pixels influence
+                    temp_weight = 0.0;
+                    for a=1:9
+                        for b=1:9
+                            if(patchNew(a,b) == -1 || patchRef(a,b) == -1) 
+                                continue;
+                            else
+                                diff = abs(patchNew(a,b)-patchRef(a,b));
+                                temp_weight = temp_weight + (isotropic_patch(a,b)*isotropic_patch(a,b))*(diff*diff);
+                                %temp_weight = temp_weight + diff*diff;
+                            end 
+                        end
+                    end    
+                    %temp_weight
+                    weight(i1-uy+1,j1-lx+1) = double(exp(-1.0*temp_weight/(h*h)));  
+                   
+                end    
+            end
+            % now the weight array is full we calculate the reulting intensity
+            % and store it in I2.
+            tot = sum(sum(weight));
+            weight = weight/tot;
+            I2(i,j) = sum(sum(window.*weight));
+            rsmd_temp=rsmd_temp+(I0(i,j)-I2(i,j))*(I0(i,j)-I2(i,j));
+        end
+    end
+    % calculate rsmd
+    rsmd_temp = rsmd_temp/(X*Y*1.0);
+    rsmd_temp= sqrt(double(rsmd_temp));
+    rsmd(p) = rsmd_temp;
+    %if is_corrupt == false
+        figure;
+        subplot(2,1,1); imagesc([I0, I1, I2]); title(['(left) Original, (center) Corrupted, (right) Denoised \sigma_h = ',num2str(h)]);
+        colormap gray; daspect([1 1 1]); axis tight;
+        colorbar;
+    %else
+    %    figure;
+    %    subplot(2,1,1); imagesc([I1, I2]); title(['(left) Corrupted, (right) Denoised \sigma_h = ',num2str(h)]);
+    %    colormap gray; daspect([1 1 1]); axis tight;
+    %    colorbar;
+    %end
+    %% Images 
+    % images are saved in the image folder by Part1,Part2,Part3
+    % respectively for the three images
+    save(['Image',num2str(h),'.mat'],'I2');
+    imwrite(uint8(I2),['Image',num2str(h),'.png']);
+end
+    
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>PatchBasedFilter2</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-08-20"><meta name="DC.source" content="PatchBasedFilter2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Function for patch based filtering.</a></li><li><a href="#3">Main body</a></li><li><a href="#5">Images</a></li></ul></div><h2>Function for patch based filtering.<a name="1"></a></h2><pre class="codeinput"><span class="comment">%Image1 is the correct image, Image2 is the corrupted image</span>
+<span class="comment">%is_corrupt for the two types of input type similary y</span>
+<span class="keyword">function</span> [] = PatchBasedFilter2(Image1,Image2,is_corrupt,y)
+</pre><pre class="codeinput"><span class="keyword">if</span>(is_corrupt)
+   I0 = double(Image1);
+   [X,Y] = size(I0);
+   I1 = double(Image2)*256;
+   I2 = double(zeros(X,Y));
+<span class="keyword">else</span>
+   I0 = Image1;
+    [X,Y] = size(I0);
+    I1 = zeros(X,Y);
+    I2 = double(zeros(X,Y)); <span class="comment">% I2 stores the modified image</span>
+    <span class="comment">%corrupt I1</span>
+    rng(0);
+     range_intensity = max(max(I0))-min(min(I0));
+     <span class="keyword">for</span> i=1:X
+         <span class="keyword">for</span> j=1:Y
+             x = normrnd(0,0.05*range_intensity);
+             I1(i,j) = I0(i,j) + x;
+         <span class="keyword">end</span>
+     <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> y == 1
+    z = 1.0;
+<span class="keyword">elseif</span> y == 2
+    z = 0.5;
+<span class="keyword">else</span>
+    z = 1.0;
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in PatchBasedFilter2 (line 5)
+if(is_corrupt)
+</pre><h2>Main body<a name="3"></a></h2><pre class="codeinput">param= [26.1,29.0,31.9]; <span class="comment">% param array stores the values of 'h' to be tried</span>
+rsmd  = zeros(size(param)); <span class="comment">% rsmd array stores the rsmd values for the correpsonding value of parameter</span>
+<span class="comment">% loop around each pixel and apply the patch based filetr on it</span>
+isotropic_patch = zeros(9,9);
+<span class="keyword">for</span> i=1:9
+    <span class="keyword">for</span> j=1:9
+        dist = (i-5)*(i-5)+(j-5)*(j-5);
+        isotropic_patch(i,j) = exp(-dist/z);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% dataS precalculates all the 9*9 patches saving a lot og repeated</span>
+<span class="comment">% calculation and making the code faster</span>
+dataS = double(zeros(9,9,X,Y));
+<span class="keyword">for</span> i=1:X
+     <span class="keyword">for</span> k=1:Y
+         <span class="keyword">for</span> a=-4:4
+             <span class="keyword">for</span> b=-4:4
+                  <span class="keyword">if</span>(i+a &lt; 1 || k+b &lt; 1 || k+b &gt; Y || i+a &gt; X)
+                       dataS(a+5,b+5,i,k) = -1;
+                  <span class="keyword">else</span>
+                       dataS(a+5,b+5,i,k) = I1(i+a,k+b);
+                  <span class="keyword">end</span>
+              <span class="keyword">end</span>
+         <span class="keyword">end</span>
+     <span class="keyword">end</span>
+ <span class="keyword">end</span>
+
+<span class="comment">% The main loop of the code were the filtered image gets constructed</span>
+<span class="keyword">for</span> p=1:3
+</pre><pre class="codeinput">    h = param(p);
+    rsmd_temp=0.0;
+    <span class="keyword">for</span> i=1:X
+
+        <span class="keyword">for</span> j=1:Y
+            <span class="comment">% obtain the window by determining the four corners such that</span>
+            <span class="comment">% 9*9 patch ceneterd here always lies in the 25*25 window</span>
+            lx = max(1,j-8);
+            rx = min(X,j+8);
+            uy = max(1,i-8);
+            dy = min(Y,i+8);
+            window = I1(uy:dy,lx:rx);
+            <span class="comment">% for each entry of window weight will finally store its cumulative</span>
+            <span class="comment">% weight, its just initialized with window for the sake of matching</span>
+            <span class="comment">% the size</span>
+            weight = window;
+            <span class="comment">% find the patch for the current pixel</span>
+            patchRef = zeros(9,9);
+            <span class="keyword">for</span> a=-4:4
+                <span class="keyword">for</span> b=-4:4
+                    <span class="keyword">if</span>(i+a &lt; 1 || i+a &gt; Y || j+b &lt; 1 || j+b &gt; X)
+                        patchRef(a+5,b+5)=-1;
+                    <span class="keyword">else</span>
+                        patchRef(a+5,b+5) = I1(i+a,j+b);
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            <span class="comment">% iterarte over the pixels of the window</span>
+            <span class="keyword">for</span> i1=uy:dy
+                <span class="keyword">for</span> j1=lx:rx
+                    patchNew = dataS(:,:,i1,j1);
+                    <span class="comment">% we have patchNew and patchRef to calculate the weight of</span>
+                    <span class="comment">% this pixels influence</span>
+                    temp_weight = 0.0;
+                    <span class="keyword">for</span> a=1:9
+                        <span class="keyword">for</span> b=1:9
+                            <span class="keyword">if</span>(patchNew(a,b) == -1 || patchRef(a,b) == -1)
+                                <span class="keyword">continue</span>;
+                            <span class="keyword">else</span>
+                                diff = abs(patchNew(a,b)-patchRef(a,b));
+                                temp_weight = temp_weight + (isotropic_patch(a,b)*isotropic_patch(a,b))*(diff*diff);
+                                <span class="comment">%temp_weight = temp_weight + diff*diff;</span>
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                    <span class="comment">%temp_weight</span>
+                    weight(i1-uy+1,j1-lx+1) = double(exp(-1.0*temp_weight/(h*h)));
+
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            <span class="comment">% now the weight array is full we calculate the reulting intensity</span>
+            <span class="comment">% and store it in I2.</span>
+            tot = sum(sum(weight));
+            weight = weight/tot;
+            I2(i,j) = sum(sum(window.*weight));
+            rsmd_temp=rsmd_temp+(I0(i,j)-I2(i,j))*(I0(i,j)-I2(i,j));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% calculate rsmd</span>
+    rsmd_temp = rsmd_temp/(X*Y*1.0);
+    rsmd_temp= sqrt(double(rsmd_temp));
+    rsmd(p) = rsmd_temp;
+    <span class="comment">%if is_corrupt == false</span>
+        figure;
+        subplot(2,1,1); imagesc([I0, I1, I2]); title([<span class="string">'(left) Original, (center) Corrupted, (right) Denoised \sigma_h = '</span>,num2str(h)]);
+        colormap <span class="string">gray</span>; daspect([1 1 1]); axis <span class="string">tight</span>;
+        colorbar;
+    <span class="comment">%else</span>
+    <span class="comment">%    figure;</span>
+    <span class="comment">%    subplot(2,1,1); imagesc([I1, I2]); title(['(left) Corrupted, (right) Denoised \sigma_h = ',num2str(h)]);</span>
+    <span class="comment">%    colormap gray; daspect([1 1 1]); axis tight;</span>
+    <span class="comment">%    colorbar;</span>
+    <span class="comment">%end</span>
+</pre><h2>Images<a name="5"></a></h2><p>images are saved in the image folder by Part1,Part2,Part3 respectively for the three images</p><pre class="codeinput">    save([<span class="string">'Image'</span>,num2str(h),<span class="string">'.mat'</span>],<span class="string">'I2'</span>);
+    imwrite(uint8(I2),[<span class="string">'Image'</span>,num2str(h),<span class="string">'.png'</span>]);
+</pre><pre class="codeinput"><span class="keyword">end</span>
+param
+rsmd
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Function for patch based filtering.
+%Image1 is the correct image, Image2 is the corrupted image
+%is_corrupt for the two types of input type similary y
+function [] = PatchBasedFilter2(Image1,Image2,is_corrupt,y)
+if(is_corrupt)
+   I0 = double(Image1);
+   [X,Y] = size(I0);
+   I1 = double(Image2)*256;
+   I2 = double(zeros(X,Y));
+else
+   I0 = Image1;
+    [X,Y] = size(I0);
+    I1 = zeros(X,Y);
+    I2 = double(zeros(X,Y)); % I2 stores the modified image
+    %corrupt I1
+    rng(0);
+     range_intensity = max(max(I0))-min(min(I0));
+     for i=1:X
+         for j=1:Y
+             x = normrnd(0,0.05*range_intensity);
+             I1(i,j) = I0(i,j) + x;    
+         end
+     end 
+end    
+if y == 1
+    z = 1.0;
+elseif y == 2
+    z = 0.5;
+else 
+    z = 1.0;
+end    
+%% Main body
+param= [26.1,29.0,31.9]; % param array stores the values of 'h' to be tried
+rsmd  = zeros(size(param)); % rsmd array stores the rsmd values for the correpsonding value of parameter
+% loop around each pixel and apply the patch based filetr on it
+isotropic_patch = zeros(9,9);
+for i=1:9
+    for j=1:9
+        dist = (i-5)*(i-5)+(j-5)*(j-5);
+        isotropic_patch(i,j) = exp(-dist/z);
+    end
+end
+
+% dataS precalculates all the 9*9 patches saving a lot og repeated
+% calculation and making the code faster
+dataS = double(zeros(9,9,X,Y)); 
+for i=1:X
+     for k=1:Y
+         for a=-4:4
+             for b=-4:4
+                  if(i+a < 1 || k+b < 1 || k+b > Y || i+a > X) 
+                       dataS(a+5,b+5,i,k) = -1;
+                  else
+                       dataS(a+5,b+5,i,k) = I1(i+a,k+b);
+                  end    
+              end
+         end  
+     end    
+ end 
+
+% The main loop of the code were the filtered image gets constructed
+for p=1:3
+    h = param(p);
+    rsmd_temp=0.0;
+    for i=1:X  
+        
+        for j=1:Y
+            % obtain the window by determining the four corners such that
+            % 9*9 patch ceneterd here always lies in the 25*25 window
+            lx = max(1,j-8);
+            rx = min(X,j+8);
+            uy = max(1,i-8);
+            dy = min(Y,i+8);
+            window = I1(uy:dy,lx:rx);
+            % for each entry of window weight will finally store its cumulative
+            % weight, its just initialized with window for the sake of matching
+            % the size
+            weight = window;
+            % find the patch for the current pixel
+            patchRef = zeros(9,9);
+            for a=-4:4
+                for b=-4:4
+                    if(i+a < 1 || i+a > Y || j+b < 1 || j+b > X) 
+                        patchRef(a+5,b+5)=-1;
+                    else
+                        patchRef(a+5,b+5) = I1(i+a,j+b);
+                    end    
+                end
+            end    
+            % iterarte over the pixels of the window
+            for i1=uy:dy
+                for j1=lx:rx
+                    patchNew = dataS(:,:,i1,j1); 
+                    % we have patchNew and patchRef to calculate the weight of
+                    % this pixels influence
+                    temp_weight = 0.0;
+                    for a=1:9
+                        for b=1:9
+                            if(patchNew(a,b) == -1 || patchRef(a,b) == -1) 
+                                continue;
+                            else
+                                diff = abs(patchNew(a,b)-patchRef(a,b));
+                                temp_weight = temp_weight + (isotropic_patch(a,b)*isotropic_patch(a,b))*(diff*diff);
+                                %temp_weight = temp_weight + diff*diff;
+                            end 
+                        end
+                    end    
+                    %temp_weight
+                    weight(i1-uy+1,j1-lx+1) = double(exp(-1.0*temp_weight/(h*h)));  
+                   
+                end    
+            end
+            % now the weight array is full we calculate the reulting intensity
+            % and store it in I2.
+            tot = sum(sum(weight));
+            weight = weight/tot;
+            I2(i,j) = sum(sum(window.*weight));
+            rsmd_temp=rsmd_temp+(I0(i,j)-I2(i,j))*(I0(i,j)-I2(i,j));
+        end
+    end
+    % calculate rsmd
+    rsmd_temp = rsmd_temp/(X*Y*1.0);
+    rsmd_temp= sqrt(double(rsmd_temp));
+    rsmd(p) = rsmd_temp;
+    %if is_corrupt == false
+        figure;
+        subplot(2,1,1); imagesc([I0, I1, I2]); title(['(left) Original, (center) Corrupted, (right) Denoised \sigma_h = ',num2str(h)]);
+        colormap gray; daspect([1 1 1]); axis tight;
+        colorbar;
+    %else
+    %    figure;
+    %    subplot(2,1,1); imagesc([I1, I2]); title(['(left) Corrupted, (right) Denoised \sigma_h = ',num2str(h)]);
+    %    colormap gray; daspect([1 1 1]); axis tight;
+    %    colorbar;
+    %end
+    %% Images 
+    % images are saved in the image folder by Part1,Part2,Part3
+    % respectively for the three images
+    save(['Image',num2str(h),'.mat'],'I2');
+    imwrite(uint8(I2),['Image',num2str(h),'.png']);
+end
+param 
+rsmd    
+##### SOURCE END #####
+--></body></html>
+
+%% Bilateral Filtering
+% We used a spatial gaussian kernel of size $ks\_s=max\{5,
+% floor(4\cdot\sigma_s)\}$ and further converted it into an odd
+% value by adding 1 if required.
+%
+% All images (original, corrupted and resultant) were linearly stretched so
+% that the intensities fell in the range [0,1]. Comparisions between images were made after this step.
+%
+% The optimal values of $\sigma_s$ and $\sigma_i$ for the input images were
+% found to be:
+%%
+% 
+% # *barbara* - $\sigma_s$=0.55 and $\sigma_i$=3.3
+% # *grassNoisy* - $\sigma_s$=0.54 and $\sigma_i$=10
+% # *honeyCombReal_Noisy* - $\sigma_s$=0.6 and $\sigma_i$=1.0
+% 
+%%
+tic;
+disp('Input : grass.png');
+x = imread('../data/grass.png');
+x = im2single(x);
+S = myBilateralFiltering(x, 0.54, 10, false);
+% save images
+save(['../images/grassNoisy.mat'], '-struct', 'S');
+
+disp('With 0.9*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.486, 10, false);
+disp('With 1.1*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.594 ,10, false);
+disp('With sigma_s and 0.9*sigma_i');
+myBilateralFiltering(x, 0.54, 9, false);
+disp('With sigma_s and 1.1*sigma_i');
+myBilateralFiltering(x, 0.54, 11, false);
+toc;
+
+tic;
+disp('Input : honeyCombReal.png');
+x = imread('../data/honeyCombReal.png');
+x = im2single(x);
+S = myBilateralFiltering(x, 0.6, 1, false);
+% save images
+save(['../images/honeyCombReal.mat'], '-struct', 'S');
+
+disp('With 0.9*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.54, 1, false);
+disp('With 1.1*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.66, 1, false);
+disp('With sigma_s and 0.9*sigma_i');
+myBilateralFiltering(x, 0.6, 0.9, false);
+disp('With sigma_s and 1.1*sigma_i');
+myBilateralFiltering(x, 0.6, 1.1, false);
+toc;
+
+tic;
+disp('Input : barbara.mat');
+x = load('../data/barbara.mat');
+S = myBilateralFiltering(x.imageOrig, 0.55, 3.3, false);
+% save images
+save(['../images/barbara.mat'], '-struct', 'S');
+
+disp('With 0.9*sigma_s and sigma_i');
+myBilateralFiltering(x.imageOrig, 0.495, 3.3, false);
+disp('With 1.1*sigma_s and sigma_i');
+myBilateralFiltering(x.imageOrig, 0.605, 3.3, false);
+disp('With sigma_s and 0.9*sigma_i');
+myBilateralFiltering(x.imageOrig, 0.55, 2.97, false);
+disp('With sigma_s and 1.1*sigma_i');
+myBilateralFiltering(x.imageOrig, 0.55, 3.63, false);
+toc;
+
+function S = myBilateralFiltering(img, sigma_s, sigma_i, corrupt)
+rng(0);
+% gaussian kernel size
+ks_s = max(5, floor(4*sigma_s));
+if rem(ks_s, 2) == 0
+    ks_s = ks_s + 1;
+end
+
+F = img;
+[H,W] = size(F);
+
+% linearly scale the image to [0,1]
+F = (F - min(F(:))) / (max(F(:)) - min(F(:)));
+
+% add Gaussian noise
+if corrupt == false
+    std = 0.05;
+    noise = randn(size(F)) * std;
+    corr_F = F + noise;
+    corr_F = (corr_F - min(corr_F(:))) / (max(corr_F(:)) - min(corr_F(:)));
+else
+    corr_F = F;
+end
+
+% padd corrupted image with zeros
+padsize = (ks_s - 1)/2;
+padded_corr_F = padarray(corr_F, [padsize padsize], 'both');
+
+% prepare spatial gaussian
+G_space = fspecial('gaussian', ks_s, sigma_s);
+
+% iterate over the image
+res = zeros(H, W);
+denom = 2*sigma_i^2;
+h = waitbar(0, 'Denoising image');
+for k=1:H*W
+    [i, j] = ind2sub([H W], k);
+    chunk = padded_corr_F(i:i+2*padsize, j:j+2*padsize);
+    wts = G_space.*exp(-(chunk-padded_corr_F(i+padsize, j+padsize))/denom);
+    res(k) = sum(sum(wts.*chunk))/sum(sum(wts));
+    waitbar(k/(H*W), h);
+end
+close(h);
+res = (res - min(res(:))) / (max(res(:)) - min(res(:)));
+
+% print useful information and prepare return value
+if corrupt == false
+    S.original = F; S.corrupted = corr_F; S.result = res;
+    disp(['RSMD for sigma_s = ', num2str(sigma_s), ' and sigma_i = ', num2str(sigma_i), ' => ', num2str(norm(res-F, 'fro')/sqrt(H*W))]);
+else
+    S.corrupted = corr_F; S.result = res;
+end
+
+% display original and sharpened image side by side
+if corrupt == false
+    figure;
+    subplot(2,1,1); imagesc([F, corr_F, res]); title(['(left) Original, (center) Corrupted, (right) Denoised \sigma_s = ',num2str(sigma_s),' \sigma_i = ',num2str(sigma_i)]);
+    colormap gray; daspect([1 1 1]); axis tight;
+    colorbar;
+    subplot(2,1,2); imagesc(G_space(:,:,1)); title(['Spatial Gaussian (size = ', num2str(ks_s),')']);
+    colormap gray; daspect([1 1 1]); axis tight; 
+    colorbar;
+else
+    figure;
+    subplot(2,1,1); imagesc([corr_F, res]); title(['(left) Corrupted, (right) Denoised \sigma_s = ',num2str(sigma_s),' \sigma_i = ',num2str(sigma_i)]);
+    colormap gray; daspect([1 1 1]); axis tight;
+    colorbar;
+    subplot(2,1,2); imagesc(G_space(:,:,1)); title(['Spatial Gaussian (size = ', num2str(ks_s),')']);
+    colormap gray; daspect([1 1 1]); axis tight; 
+    colorbar;
+end
+end
+
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Bilateral Filtering</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-08-20"><meta name="DC.source" content="myMainScript.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Bilateral Filtering</h1><!--introduction--><p>We used a spatial gaussian kernel of size <img src="myMainScript_eq10975364421293453016.png" alt="$ks\_s=max\{5, floor(4\cdot\sigma_s)\}$" style="width:121px;height:10px;"> and further converted it into an odd value by adding 1 if required.</p><p>All images (original, corrupted and resultant) were linearly stretched so that the intensities fell in the range [0,1]. Comparisions between images were made after this step.</p><p>The optimal values of <img src="myMainScript_eq03986963622219052081.png" alt="$\sigma_s$" style="width:9px;height:6px;"> and <img src="myMainScript_eq04740202211481950950.png" alt="$\sigma_i$" style="width:8px;height:6px;"> for the input images were found to be:</p><!--/introduction--><div><ol><li><b>barbara</b> - <img src="myMainScript_eq03986963622219052081.png" alt="$\sigma_s$" style="width:9px;height:6px;">=0.55 and <img src="myMainScript_eq04740202211481950950.png" alt="$\sigma_i$" style="width:8px;height:6px;">=3.3</li><li><b>grassNoisy</b> - <img src="myMainScript_eq03986963622219052081.png" alt="$\sigma_s$" style="width:9px;height:6px;">=0.54 and <img src="myMainScript_eq04740202211481950950.png" alt="$\sigma_i$" style="width:8px;height:6px;">=10</li><li><b>honeyCombReal_Noisy</b> - <img src="myMainScript_eq03986963622219052081.png" alt="$\sigma_s$" style="width:9px;height:6px;">=0.6 and <img src="myMainScript_eq04740202211481950950.png" alt="$\sigma_i$" style="width:8px;height:6px;">=1.0</li></ol></div><pre class="codeinput">tic;
+disp(<span class="string">'Input : grass.png'</span>);
+x = imread(<span class="string">'../data/grass.png'</span>);
+x = im2single(x);
+S = myBilateralFiltering(x, 0.54, 10, false);
+<span class="comment">% save images</span>
+save([<span class="string">'../images/grassNoisy.mat'</span>], <span class="string">'-struct'</span>, <span class="string">'S'</span>);
+
+disp(<span class="string">'With 0.9*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x, 0.486, 10, false);
+disp(<span class="string">'With 1.1*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x, 0.594 ,10, false);
+disp(<span class="string">'With sigma_s and 0.9*sigma_i'</span>);
+myBilateralFiltering(x, 0.54, 9, false);
+disp(<span class="string">'With sigma_s and 1.1*sigma_i'</span>);
+myBilateralFiltering(x, 0.54, 11, false);
+toc;
+
+tic;
+disp(<span class="string">'Input : honeyCombReal.png'</span>);
+x = imread(<span class="string">'../data/honeyCombReal.png'</span>);
+x = im2single(x);
+S = myBilateralFiltering(x, 0.6, 1, false);
+<span class="comment">% save images</span>
+save([<span class="string">'../images/honeyCombReal.mat'</span>], <span class="string">'-struct'</span>, <span class="string">'S'</span>);
+
+disp(<span class="string">'With 0.9*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x, 0.54, 1, false);
+disp(<span class="string">'With 1.1*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x, 0.66, 1, false);
+disp(<span class="string">'With sigma_s and 0.9*sigma_i'</span>);
+myBilateralFiltering(x, 0.6, 0.9, false);
+disp(<span class="string">'With sigma_s and 1.1*sigma_i'</span>);
+myBilateralFiltering(x, 0.6, 1.1, false);
+toc;
+
+tic;
+disp(<span class="string">'Input : barbara.mat'</span>);
+x = load(<span class="string">'../data/barbara.mat'</span>);
+S = myBilateralFiltering(x.imageOrig, 0.55, 3.3, false);
+<span class="comment">% save images</span>
+save([<span class="string">'../images/barbara.mat'</span>], <span class="string">'-struct'</span>, <span class="string">'S'</span>);
+
+disp(<span class="string">'With 0.9*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x.imageOrig, 0.495, 3.3, false);
+disp(<span class="string">'With 1.1*sigma_s and sigma_i'</span>);
+myBilateralFiltering(x.imageOrig, 0.605, 3.3, false);
+disp(<span class="string">'With sigma_s and 0.9*sigma_i'</span>);
+myBilateralFiltering(x.imageOrig, 0.55, 2.97, false);
+disp(<span class="string">'With sigma_s and 1.1*sigma_i'</span>);
+myBilateralFiltering(x.imageOrig, 0.55, 3.63, false);
+toc;
+</pre><pre class="codeoutput">Input : grass.png
+RSMD for sigma_s = 0.54 and sigma_i = 10 =&gt; 0.036503
+With 0.9*sigma_s and sigma_i
+RSMD for sigma_s = 0.486 and sigma_i = 10 =&gt; 0.037702
+With 1.1*sigma_s and sigma_i
+RSMD for sigma_s = 0.594 and sigma_i = 10 =&gt; 0.036823
+With sigma_s and 0.9*sigma_i
+RSMD for sigma_s = 0.54 and sigma_i = 9 =&gt; 0.036506
+With sigma_s and 1.1*sigma_i
+RSMD for sigma_s = 0.54 and sigma_i = 11 =&gt; 0.036501
+Elapsed time is 50.002176 seconds.
+Input : honeyCombReal.png
+RSMD for sigma_s = 0.6 and sigma_i = 1 =&gt; 0.035986
+With 0.9*sigma_s and sigma_i
+RSMD for sigma_s = 0.54 and sigma_i = 1 =&gt; 0.036045
+With 1.1*sigma_s and sigma_i
+RSMD for sigma_s = 0.66 and sigma_i = 1 =&gt; 0.037507
+With sigma_s and 0.9*sigma_i
+RSMD for sigma_s = 0.6 and sigma_i = 0.9 =&gt; 0.036193
+With sigma_s and 1.1*sigma_i
+RSMD for sigma_s = 0.6 and sigma_i = 1.1 =&gt; 0.03585
+Elapsed time is 196.182917 seconds.
+Input : barbara.mat
+RSMD for sigma_s = 0.55 and sigma_i = 3.3 =&gt; 0.046507
+With 0.9*sigma_s and sigma_i
+RSMD for sigma_s = 0.495 and sigma_i = 3.3 =&gt; 0.04595
+With 1.1*sigma_s and sigma_i
+RSMD for sigma_s = 0.605 and sigma_i = 3.3 =&gt; 0.048731
+With sigma_s and 0.9*sigma_i
+RSMD for sigma_s = 0.55 and sigma_i = 2.97 =&gt; 0.046513
+With sigma_s and 1.1*sigma_i
+RSMD for sigma_s = 0.55 and sigma_i = 3.63 =&gt; 0.046503
+Elapsed time is 806.098608 seconds.
+</pre><img vspace="5" hspace="5" src="myMainScript_01.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_02.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_03.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_04.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_05.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_06.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_07.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_08.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_09.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_10.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_11.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_12.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_13.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_14.png" alt=""> <img vspace="5" hspace="5" src="myMainScript_15.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Bilateral Filtering
+% We used a spatial gaussian kernel of size $ks\_s=max\{5,
+% floor(4\cdot\sigma_s)\}$ and further converted it into an odd
+% value by adding 1 if required.
+%
+% All images (original, corrupted and resultant) were linearly stretched so
+% that the intensities fell in the range [0,1]. Comparisions between images were made after this step.
+%
+% The optimal values of $\sigma_s$ and $\sigma_i$ for the input images were
+% found to be:
+%%
+% 
+% # *barbara* - $\sigma_s$=0.55 and $\sigma_i$=3.3
+% # *grassNoisy* - $\sigma_s$=0.54 and $\sigma_i$=10
+% # *honeyCombReal_Noisy* - $\sigma_s$=0.6 and $\sigma_i$=1.0
+% 
+%%
+tic;
+disp('Input : grass.png');
+x = imread('../data/grass.png');
+x = im2single(x);
+S = myBilateralFiltering(x, 0.54, 10, false);
+% save images
+save(['../images/grassNoisy.mat'], '-struct', 'S');
+
+disp('With 0.9*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.486, 10, false);
+disp('With 1.1*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.594 ,10, false);
+disp('With sigma_s and 0.9*sigma_i');
+myBilateralFiltering(x, 0.54, 9, false);
+disp('With sigma_s and 1.1*sigma_i');
+myBilateralFiltering(x, 0.54, 11, false);
+toc;
+
+tic;
+disp('Input : honeyCombReal.png');
+x = imread('../data/honeyCombReal.png');
+x = im2single(x);
+S = myBilateralFiltering(x, 0.6, 1, false);
+% save images
+save(['../images/honeyCombReal.mat'], '-struct', 'S');
+
+disp('With 0.9*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.54, 1, false);
+disp('With 1.1*sigma_s and sigma_i');
+myBilateralFiltering(x, 0.66, 1, false);
+disp('With sigma_s and 0.9*sigma_i');
+myBilateralFiltering(x, 0.6, 0.9, false);
+disp('With sigma_s and 1.1*sigma_i');
+myBilateralFiltering(x, 0.6, 1.1, false);
+toc;
+
+tic;
+disp('Input : barbara.mat');
+x = load('../data/barbara.mat');
+S = myBilateralFiltering(x.imageOrig, 0.55, 3.3, false);
+% save images
+save(['../images/barbara.mat'], '-struct', 'S');
+
+disp('With 0.9*sigma_s and sigma_i');
+myBilateralFiltering(x.imageOrig, 0.495, 3.3, false);
+disp('With 1.1*sigma_s and sigma_i');
+myBilateralFiltering(x.imageOrig, 0.605, 3.3, false);
+disp('With sigma_s and 0.9*sigma_i');
+myBilateralFiltering(x.imageOrig, 0.55, 2.97, false);
+disp('With sigma_s and 1.1*sigma_i');
+myBilateralFiltering(x.imageOrig, 0.55, 3.63, false);
+toc;
+
+##### SOURCE END #####
+--></body></html>
+
